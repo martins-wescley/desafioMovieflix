@@ -2,14 +2,16 @@ package com.devsuperior.movieflix.services;
 
 import com.devsuperior.movieflix.dto.MovieCardDTO;
 import com.devsuperior.movieflix.dto.MovieDetailsDTO;
+import com.devsuperior.movieflix.dto.ReviewDTO;
 import com.devsuperior.movieflix.entities.Movie;
 import com.devsuperior.movieflix.projections.MovieProjection;
+import com.devsuperior.movieflix.projections.ReviewProjection;
 import com.devsuperior.movieflix.repositories.MovieRepository;
+import com.devsuperior.movieflix.repositories.ReviewRepository;
 import com.devsuperior.movieflix.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,9 @@ public class MovieService {
 
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @Transactional(readOnly = true)
     public MovieDetailsDTO findById(Long id) {
@@ -41,5 +46,11 @@ public class MovieService {
         Page<MovieProjection> projection = movieRepository.searchMoviesByGenre(genreIds, pageable);
 
         return projection.map(x-> new MovieCardDTO(x));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> findReviews(Long movieId) {
+        List<ReviewProjection> reviewProjections = reviewRepository.searchReviewByMovieId(movieId);
+        return reviewProjections.stream().map(x-> new ReviewDTO(x)).toList();
     }
 }
